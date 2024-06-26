@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+  db:
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: galatic-fleet-manager-dev-db
+    environment:
+      MYSQL_DATABASE: galatic-fleet-manager
+      MYSQL_PASSWORD: galatic-fleet-manager
+      MYSQL_ROOT_PASSWORD: galatic-fleet-manager
+      MYSQL_USER: galatic-fleet-manager
+      SERVICE_NAME: mysql
+      SERVICE_TAGS: dev
+    image: mysql:8.0.37
+    networks:
+      - galatic-fleet-managerNetwork
+    ports:
+      - 33306:3306
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./docker-compose/mysql:/docker-entrypoint-initdb.d
+      - galatic-fleet-managerMysqlData:/var/lib/mysql
+
+networks:
+  galatic-fleet-managerNetwork:
+    driver: bridge
+volumes:
+  galatic-fleet-managerMysqlData:
+    driver: local
+    name: galatic-fleet-managerMysqlData
