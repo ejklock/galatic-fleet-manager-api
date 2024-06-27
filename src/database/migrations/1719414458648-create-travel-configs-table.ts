@@ -108,6 +108,6 @@ export class CreateTravelConfigsTable1719414458648
     await queryRunner.query(`DROP TRIGGER IF EXISTS trg_insert_unique_hash`);
     await queryRunner.query(`DROP TRIGGER IF EXISTS trg_update_unique_hash`);
     await queryRunner.query(`DROP FUNCTION IF EXISTS calculate_hash`);
-    await queryRunner.dropTable('travel_configs');
+    await queryRunner.dropTable('travel_configs', true, true, true);
   }
 }

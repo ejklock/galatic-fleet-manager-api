@@ -13,7 +13,7 @@ export class ValidPlanetConstraint implements ValidatorConstraintInterface {
   constructor(private readonly planetService: PlanetService) {}
 
   async validate(value: number) {
-    return !!this.planetService.findOne(value);
+    return !!(await this.planetService.findOne(value));
   }
 
   defaultMessage() {
@@ -27,7 +27,7 @@ export function ValidPlanet(validationOptions?: ValidationOptions) {
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
-      constraints: [],
+      constraints: [ValidPlanetConstraint],
       validator: ValidPlanetConstraint,
     });
   };
