@@ -1,6 +1,14 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, Length, Max, Min } from 'class-validator';
-import { CertificationNoExists } from 'src/domains/pilot/validators/certification-no-exists.decorator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  Length,
+  Max,
+  Min,
+} from 'class-validator';
+import { CertificationNoExists } from 'src/domains/pilot/validators/certification-no-exists.validator';
+
 import { ValidPlanet } from 'src/domains/planet/validators/valid-planet.decorator';
 
 @ApiExtraModels()
@@ -66,6 +74,6 @@ export class CreatePilotDto {
     description: 'List of ships id',
   })
   @IsNumber({}, { each: true })
-  @IsNotEmpty()
+  @IsOptional()
   shipsId?: number[];
 }

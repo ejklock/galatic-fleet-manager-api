@@ -5,11 +5,13 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-export class CreateContractsTable1719412116744 implements MigrationInterface {
+export class CreateContractResourcesTable1719441472497
+  implements MigrationInterface
+{
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'contracts',
+        name: 'contract_resources',
         columns: [
           {
             name: 'id',
@@ -20,38 +22,43 @@ export class CreateContractsTable1719412116744 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
-            name: 'originPlanetId',
+            name: 'contract_id',
             type: 'bigint',
             unsigned: true,
           },
           {
-            name: 'description',
-            type: 'varchar',
-            length: '255',
+            name: 'resource_id',
+            type: 'bigint',
+            unsigned: true,
           },
           {
-            name: 'value',
-            type: 'decimal',
-            precision: 10,
-            scale: 2,
+            name: 'quantity',
+            type: 'int',
           },
         ],
       }),
     );
 
-    await queryRunner.createForeignKey(
-      'contracts',
+    await queryRunner.createForeignKeys('contract_resources', [
       new TableForeignKey({
-        name: 'FK_CONTRACTS_ORIGIN_PLANET',
-        columnNames: ['originPlanetId'],
+        name: 'FK_CONTRACTS_RESOURCES',
+        columnNames: ['contract_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'planets',
+        referencedTableName: 'contracts',
         onDelete: 'CASCADE',
       }),
-    );
+
+      new TableForeignKey({
+        name: 'FK_RESOURCES_CONTRACTS',
+        columnNames: ['resource_id'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'resources',
+        onDelete: 'CASCADE',
+      }),
+    ]);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('contracts');
+    await queryRunner.dropTable('contract_resources');
   }
 }

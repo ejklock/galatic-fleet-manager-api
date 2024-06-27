@@ -8,8 +8,9 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ShipService } from 'src/domains/ship/ship.service';
 import { CreateShipDto } from './dto/create-ship.dto';
 import { UpdateShipDto } from './dto/update-ship.dto';
@@ -27,8 +28,10 @@ export class ShipController {
 
   @HttpCode(HttpStatus.OK)
   @Get()
-  findAll() {
-    return this.shipService.findAll();
+  @ApiQuery({ name: 'page', type: Number, required: false, example: 1 })
+  @ApiQuery({ name: 'limit', type: Number, required: false, example: 10 })
+  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
+    return this.shipService.getAllPaginated(page, limit);
   }
 
   @HttpCode(HttpStatus.OK)

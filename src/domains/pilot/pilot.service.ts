@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BaseRepository } from 'src/utils/base-repository';
+
 import { DataSource, DeepPartial, QueryFailedError, Repository } from 'typeorm';
+import BaseService from '../common/base.service';
 import { ShipEntity } from '../ship/ship.entity';
 import { PilotEntity } from './pilot.entity';
 
 @Injectable()
-export class PilotService extends BaseRepository<PilotEntity> {
+export class PilotService extends BaseService<PilotEntity> {
   constructor(
     @InjectRepository(PilotEntity)
     private readonly pilotRepository: Repository<PilotEntity>,
@@ -15,7 +16,27 @@ export class PilotService extends BaseRepository<PilotEntity> {
     super(pilotRepository);
   }
 
+  public async findByCertification(
+    certification: string,
+  ): Promise<PilotEntity> {
+    this.logger.log(`Find by certification ${certification}`);
+    return this.repository.findOneBy({ certification });
+  }
+
+  public async findOtherPilotWithCertification(
+    idToUpdate: number,
+    certification: string,
+  ): Promise<PilotEntity> {
+    this.logger.log('Find other pilot with certification');
+    return this.repository
+      .createQueryBuilder('pilot')
+      .where('pilot.certification = :certification', { certification })
+      .andWhere('pilot.id != :idToUpdate', { idToUpdate })
+      .getOne();
+  }
+
   private async validateIfShipsExists(ships: number[]): Promise<void> {
+    this.logger.log('Validate if ships exists');
     const existentShips = await this.dataSource
       .getRepository(ShipEntity)
       .createQueryBuilder('pilot_ships')
@@ -30,6 +51,7 @@ export class PilotService extends BaseRepository<PilotEntity> {
     item: DeepPartial<PilotEntity>,
     ships?: number[],
   ): Promise<PilotEntity> {
+    this.logger.log('Store with ships');
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -46,10 +68,9 @@ export class PilotService extends BaseRepository<PilotEntity> {
           .into('pilot_ships', ['pilot_id', 'ship_id'])
           .values(ships.map((ship) => ({ pilotId: pilot.id, shipId: ship })))
           .execute();
-
-        await queryRunner.commitTransaction();
-        return pilot;
       }
+      await queryRunner.commitTransaction();
+      return pilot;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       if (error instanceof QueryFailedError) {

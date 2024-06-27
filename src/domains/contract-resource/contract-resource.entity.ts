@@ -1,5 +1,5 @@
-import { BaseEntity } from 'src/utils/base.entity';
 import { Column, Entity } from 'typeorm';
+import { BaseEntity } from '../common/base.entity';
 
 @Entity('contract_resources')
 export class ContractResourceEntity extends BaseEntity {

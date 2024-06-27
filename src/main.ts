@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
-import { CreateShipDto } from './http/controllers/ship/dto/create-ship.dto';
 import { HttpModule } from './http/http.module';
 
 async function bootstrap() {
@@ -29,7 +28,7 @@ async function bootstrap() {
   // Create a Swagger document using the application instance and the document configuration
   const document = SwaggerModule.createDocument(app, config, {
     include: [HttpModule],
-    extraModels: [CreateShipDto],
+    extraModels: [],
     deepScanRoutes: true,
   });
 

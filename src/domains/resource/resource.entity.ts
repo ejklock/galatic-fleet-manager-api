@@ -1,5 +1,5 @@
-import { BaseEntity } from 'src/utils/base.entity';
 import { Column, Entity } from 'typeorm';
+import { BaseEntity } from '../common/base.entity';
 import { ResourceTypeEnum } from './resource.types';
 
 @Entity('resources')

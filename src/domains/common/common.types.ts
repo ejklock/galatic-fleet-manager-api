@@ -19,10 +19,10 @@ export type PaginatedLinks = {
 };
 
 export type PaginatedMeta = {
-  current_page: number;
-  from: number;
-  last_page: number;
+  firstPage: number;
+  lastPage: number;
   total: number;
+  currentPage: number;
 };
 
 export type RequestQuery = {

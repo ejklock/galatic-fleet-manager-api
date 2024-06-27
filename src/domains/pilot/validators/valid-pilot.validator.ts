@@ -9,30 +9,27 @@ import { PilotService } from '../pilot.service';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class CertificationNoExistsConstraint
-  implements ValidatorConstraintInterface
-{
+export class ValidPilotConstraint implements ValidatorConstraintInterface {
   constructor(private readonly pilotService: PilotService) {}
 
-  async validate(value: string) {
-    return !(await this.pilotService.getRepository().findOne({
-      where: { certification: value },
-    }));
+  async validate(value: number) {
+    console.log(value);
+    return !!this.pilotService.findOne(value);
   }
 
   defaultMessage() {
-    return 'Certification already exists';
+    return 'Pilot not found or invalid';
   }
 }
 
-export function CertificationNoExists(validationOptions?: ValidationOptions) {
+export function ValidPilot(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
-      constraints: [CertificationNoExistsConstraint],
-      validator: CertificationNoExistsConstraint,
+      constraints: ['shipId'],
+      validator: ValidPilotConstraint,
     });
   };
 }

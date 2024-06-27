@@ -8,8 +8,9 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PilotService } from 'src/domains/pilot/pilot.service';
 import { CreatePilotDto } from './dto/create-pilot.dto';
 import { UpdatePilotDto } from './dto/update-pilot.dto';
@@ -28,15 +29,17 @@ export class PilotController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @ApiQuery({ name: 'page', type: Number, required: false, example: 1 })
+  @ApiQuery({ name: 'limit', type: Number, required: false, example: 10 })
   @Get()
-  findAll() {
-    return this.pilotService.findAll();
+  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
+    return this.pilotService.getAllPaginated(page, limit);
   }
 
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.pilotService.findOne(+id);
+  findOne(@Param('id') id: number) {
+    return this.pilotService.findOne(id);
   }
 
   @HttpCode(HttpStatus.CREATED)

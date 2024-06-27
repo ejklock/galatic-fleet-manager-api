@@ -1,6 +1,7 @@
 import { DecimalColumnTransformer } from 'src/utils/app.transformers';
-import { BaseEntity } from 'src/utils/base.entity';
+
 import { Column, Entity, JoinTable } from 'typeorm';
+import { BaseEntity } from '../common/base.entity';
 import { ShipEntity } from '../ship/ship.entity';
 
 @Entity('pilots')
