@@ -1,5 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
+import { ContractEntity } from '../contract/contract.entity';
+import { ResourceEntity } from '../resource/resource.entity';
 
 @Entity('contract_resources')
 export class ContractResourceEntity extends BaseEntity {
@@ -11,4 +13,12 @@ export class ContractResourceEntity extends BaseEntity {
 
   @Column()
   quantity: number;
+
+  @ManyToOne(() => ContractEntity, (contract) => contract.contractResources)
+  @JoinColumn({ name: 'contract_id' })
+  contract: ContractEntity;
+
+  @ManyToOne(() => ResourceEntity, (resource) => resource.contractResources)
+  @JoinColumn({ name: 'resource_id' })
+  resource: ResourceEntity;
 }

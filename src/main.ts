@@ -33,7 +33,12 @@ async function bootstrap() {
   });
 
   // Setup Swagger module with the application instance and the Swagger document
-  SwaggerModule.setup('/', app, document);
+  SwaggerModule.setup('/', app, document, {
+    useGlobalPrefix: true,
+    customSiteTitle: 'Galactic Fleet Manager API',
+    jsonDocumentUrl: '/api.json',
+    yamlDocumentUrl: '/api.yaml',
+  });
 
   await app.listen(process.env.PORT || 3333);
 

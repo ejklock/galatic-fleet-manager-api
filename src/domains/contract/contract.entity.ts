@@ -1,5 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { DecimalColumnTransformer } from 'src/utils/app.transformers';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
+import { ContractResourceEntity } from '../contract-resource/contract-resource.entity';
 import { ContractStatusEnum } from './contract.types';
 
 @Entity('contracts')
@@ -16,7 +18,12 @@ export class ContractEntity extends BaseEntity {
   @Column()
   description: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    transformer: new DecimalColumnTransformer(),
+  })
   value: number;
 
   @Column({
@@ -24,4 +31,17 @@ export class ContractEntity extends BaseEntity {
     enum: ContractStatusEnum,
   })
   status: ContractStatusEnum;
+
+  @Column({
+    name: 'payload',
+    select: false,
+    insert: false,
+    update: false,
+    nullable: true,
+    transformer: new DecimalColumnTransformer(),
+  })
+  payload: number;
+
+  @OneToMany(() => ContractResourceEntity, (resource) => resource.contract)
+  contractResources: ContractResourceEntity[];
 }

@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ResourceEntity } from './resource.entity';
 import { ResourceService } from './resource.service';
+import { ValidResourceConstraint } from './validators/valid-resource.validator';
 
 @Module({
-  providers: [ResourceService],
+  providers: [ResourceService, ValidResourceConstraint],
   imports: [TypeOrmModule.forFeature([ResourceEntity])],
-  exports: [TypeOrmModule, ResourceService],
+  exports: [ResourceService],
 })
 export class ResourceModule {}

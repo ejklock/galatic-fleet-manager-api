@@ -22,8 +22,12 @@ export class ContractController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() CreateContractDto: CreateContractDto) {
-    return await this.contractService.store(CreateContractDto);
+  async create(@Body() createContractDto: CreateContractDto) {
+    const { resources, ...createDto } = createContractDto;
+    return await this.contractService.storeValidatingTravelConfigsAndResources(
+      createDto,
+      resources,
+    );
   }
 
   @HttpCode(HttpStatus.OK)
@@ -31,7 +35,7 @@ export class ContractController {
   @ApiQuery({ name: 'limit', type: Number, required: false, example: 10 })
   @Get()
   findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
-    return this.contractService.getAllPaginated(page, limit);
+    return this.contractService.getAllPaginatedWithWeightCount(page, limit);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -47,6 +51,13 @@ export class ContractController {
     @Body() updateContractDto: UpdateContractDto,
   ) {
     return this.contractService.update(id, updateContractDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Patch(':id/accept')
+  acceptContract(@Param('id') id: number) {
+    console.log(id);
+    return this.contractService.acceptContract(id);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

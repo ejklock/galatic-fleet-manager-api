@@ -6,6 +6,6 @@ import { TravelConfigService } from './travel-config.service';
 @Module({
   providers: [TravelConfigService],
   imports: [TypeOrmModule.forFeature([TravelConfigEntity])],
-  exports: [TypeOrmModule, TravelConfigService],
+  exports: [TravelConfigService],
 })
 export class TravelConfigModule {}

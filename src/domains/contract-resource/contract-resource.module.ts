@@ -6,6 +6,6 @@ import { ContractResourceService } from './contract-resource.service';
 @Module({
   providers: [ContractResourceService],
   imports: [TypeOrmModule.forFeature([ContractResourceEntity])],
-  exports: [TypeOrmModule, ContractResourceService],
+  exports: [ContractResourceService],
 })
 export class ContractResourceModule {}

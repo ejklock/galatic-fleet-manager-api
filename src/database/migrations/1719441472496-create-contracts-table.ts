@@ -48,7 +48,15 @@ export class CreateContractsTable1719441472496 implements MigrationInterface {
           {
             name: 'status',
             type: 'enum',
-            enum: ['ACCEPTED', 'COMPLETED', 'CANCELED', 'REJECTED'],
+            enum: [
+              'PENDING',
+              'PENDING_RESOURCES',
+              'ACCEPTED',
+              'COMPLETED',
+              'CANCELED',
+              'REJECTED',
+            ],
+            default: "'PENDING_RESOURCES'",
           },
         ],
       }),

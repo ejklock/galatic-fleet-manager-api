@@ -9,6 +9,34 @@ export default class BaseService<T extends BaseEntity> {
     this.logger = new Logger(this.constructor.name);
   }
 
+  protected buildPaginationResponse(
+    data: T[],
+    total: number,
+    page: number,
+    limit: number,
+  ): ApiPaginatedResponse<T> {
+    const lastPage = Math.ceil(total / limit);
+    const firstPage = (page - 1) * limit + 1;
+    return {
+      data,
+      links: {
+        first: `?page=1&limit=${limit}`,
+        last: `?page=${lastPage}&limit=${limit}`,
+        prev:
+          lastPage <= 1
+            ? null
+            : `?page=${page === 1 ? 1 : page - 1}&limit=${limit}`,
+        next: lastPage <= 1 ? null : `?page=${page + 1}&limit=${limit}`,
+      },
+      meta: {
+        total,
+        currentPage: page,
+        lastPage,
+        firstPage,
+      },
+    };
+  }
+
   public findAll(): Promise<T[]> {
     this.logger.log('Find all');
     return this.repository.find();
@@ -28,27 +56,7 @@ export default class BaseService<T extends BaseEntity> {
       .limit(limit)
       .getManyAndCount();
 
-    const lastPage = Math.ceil(total / limit);
-    const firstPage = (page - 1) * limit + 1;
-
-    return {
-      data,
-      links: {
-        first: `?page=1&limit=${limit}`,
-        last: `?page=${lastPage}&limit=${limit}`,
-        prev:
-          lastPage <= 1
-            ? null
-            : `?page=${page === 1 ? 1 : page - 1}&limit=${limit}`,
-        next: lastPage <= 1 ? null : `?page=${page + 1}&limit=${limit}`,
-      },
-      meta: {
-        firstPage,
-        lastPage,
-        total,
-        currentPage: page,
-      },
-    };
+    return this.buildPaginationResponse(data, total, page, limit);
   }
 
   public async findOne(id: number): Promise<T | null> {

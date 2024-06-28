@@ -5,30 +5,30 @@ import {
   ValidatorConstraintInterface,
   registerDecorator,
 } from 'class-validator';
-import { PilotService } from '../pilot.service';
+import { ResourceService } from '../resource.service';
 
 @ValidatorConstraint({ async: true })
 @Injectable()
-export class ValidPilotConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly pilotService: PilotService) {}
+export class ValidResourceConstraint implements ValidatorConstraintInterface {
+  constructor(private readonly resourceService: ResourceService) {}
 
   async validate(value: number) {
-    return !!(await this.pilotService.findOne(value));
+    return !!(await this.resourceService.findOne(value));
   }
 
   defaultMessage() {
-    return 'Pilot not found or invalid';
+    return 'Resource not found or invalid';
   }
 }
 
-export function ValidPilot(validationOptions?: ValidationOptions) {
+export function ValidResource(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
       constraints: ['shipId'],
-      validator: ValidPilotConstraint,
+      validator: ValidResourceConstraint,
     });
   };
 }
