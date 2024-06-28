@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource, DeepPartial, Repository, UpdateResult } from 'typeorm';
+import { DataSource, DeepPartial, Repository } from 'typeorm';
 import { DomainRuleViolationException } from '../common/common.exceptions';
 import {
   createDataSourceMock,
@@ -11,7 +11,7 @@ import { ResourceEntity } from '../resource/resource.entity';
 import { TravelConfigEntity } from '../travel-config/travel-config.entity';
 import { ContractEntity } from './contract.entity';
 import { ContractService } from './contract.service';
-import { ContractResource } from './contract.types';
+import { ContractResource, ContractStatusEnum } from './contract.types';
 
 describe('ContractService', () => {
   let service: ContractService;
@@ -176,16 +176,18 @@ describe('ContractService', () => {
       const mockContract = {
         id: 1,
       } as DeepPartial<ContractEntity>;
+      service.findOne = jest.fn().mockResolvedValue(mockContract);
 
-      contractRepository.update = jest
-        .fn()
-        .mockResolvedValue({ affected: 1 } as UpdateResult);
+      contractRepository.save = jest.fn().mockResolvedValue({
+        status: ContractStatusEnum.ACCEPTED,
+      });
+
       const result = await service.acceptContract(mockContract.id);
 
       expect(result).toBeDefined();
-      expect(contractRepository.update).toHaveBeenCalled();
+      expect(contractRepository.save).toHaveBeenCalled();
 
-      expect(result.affected).toBe(1);
+      expect(result.status).toBe(ContractStatusEnum.ACCEPTED);
     });
   });
 });

@@ -1,7 +1,7 @@
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
-export function createTypeOrmMocks(entity: Function) {
+export function createTypeOrmMocks(entity: any) {
   return {
     provide: getRepositoryToken(entity),
     useClass: Repository,
@@ -25,6 +25,7 @@ export function createDataSourceMock() {
             insert: jest.fn(),
             createQueryBuilder: jest.fn().mockReturnValue({
               getMany: jest.fn().mockResolvedValue([]),
+              where: jest.fn().mockReturnThis(),
             }),
           }),
         },
