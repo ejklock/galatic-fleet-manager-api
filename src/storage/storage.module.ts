@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import storageConfig from 'src/config/storage.config';
+import storageConfig from '../config/storage.config';
 import { LocalStorageService } from './local-storage.service';
 import StorageService from './storage.service';
 

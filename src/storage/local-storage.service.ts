@@ -3,9 +3,8 @@ import { ConfigType } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import storageConfig from 'src/config/storage.config';
-
-import { normalizeUrl, trimChars } from 'src/utils/app.utils';
+import storageConfig from '../config/storage.config';
+import { normalizeUrl, trimChars } from '../utils/app.utils';
 import StorageService from './storage.service';
 
 @Injectable()

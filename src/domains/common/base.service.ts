@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { DeepPartial, FindOneOptions, Repository } from 'typeorm';
+import { DeepPartial, FindOneOptions, QueryRunner, Repository } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { ApiPaginatedResponse } from './common.types';
 
@@ -7,6 +7,10 @@ export default class BaseService<T extends BaseEntity> {
   protected readonly logger: Logger;
   constructor(public repository: Repository<T>) {
     this.logger = new Logger(this.constructor.name);
+  }
+
+  public getNewQueryRunner(): QueryRunner {
+    return this.repository.manager.connection.createQueryRunner();
   }
 
   protected buildPaginationResponse(

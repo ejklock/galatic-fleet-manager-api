@@ -1,5 +1,5 @@
-import { DecimalColumnTransformer } from 'src/utils/app.transformers';
 import { Column, Entity, OneToMany } from 'typeorm';
+import { DecimalColumnTransformer } from '../../utils/app.transformers';
 import { BaseEntity } from '../common/base.entity';
 import { ContractResourceEntity } from '../contract-resource/contract-resource.entity';
 import { ContractStatusEnum } from './contract.types';
