@@ -1,5 +1,11 @@
 import { Logger } from '@nestjs/common';
-import { DeepPartial, FindOneOptions, QueryRunner, Repository } from 'typeorm';
+import {
+  DeepPartial,
+  EntityManager,
+  FindOneOptions,
+  QueryRunner,
+  Repository,
+} from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { ApiPaginatedResponse } from './common.types';
 
@@ -9,8 +15,33 @@ export default class BaseService<T extends BaseEntity> {
     this.logger = new Logger(this.constructor.name);
   }
 
+  public getEntityManager(): EntityManager {
+    return this.repository.manager;
+  }
+
   public getNewQueryRunner(): QueryRunner {
     return this.repository.manager.connection.createQueryRunner();
+  }
+
+  protected async executeInTransaction<T>(
+    callback: (queryRunner: QueryRunner) => Promise<T>,
+  ) {
+    this.logger.log('Starting transaction');
+    const queryRunner = this.getNewQueryRunner();
+    await queryRunner.connect();
+    try {
+      await queryRunner.startTransaction();
+      const result = await callback(queryRunner);
+      await queryRunner.commitTransaction();
+      return result;
+    } catch (error) {
+      this.logger.error(error);
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      this.logger.log('Releasing query runner');
+      await queryRunner.release();
+    }
   }
 
   protected buildPaginationResponse(

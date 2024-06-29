@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, DeepPartial, QueryRunner, Repository } from 'typeorm';
+import { DeepPartial, QueryRunner, Repository } from 'typeorm';
 import BaseService from '../common/base.service';
 import { DomainRuleViolationException } from '../common/common.exceptions';
 import { ApiPaginatedResponse } from '../common/common.types';
@@ -15,26 +15,32 @@ export class ContractService extends BaseService<ContractEntity> {
   constructor(
     @InjectRepository(ContractEntity)
     private readonly contractRepository: Repository<ContractEntity>,
-    private readonly dataSource: DataSource,
   ) {
     super(contractRepository);
   }
 
+  public async findOneWithWeightCount(id: number) {
+    const queryBuilder = this.contractRepository
+      .createQueryBuilder('contracts')
+      .leftJoin('contracts.contractResources', 'contractResources')
+      .leftJoin('contractResources.resource', 'resource')
+      .addSelect([
+        'SUM(resource.weight * contractResources.quantity) AS contracts_payload',
+      ])
+      .groupBy('contracts.id')
+      .where('contracts.id = :id', { id })
+      .getOne();
+    return queryBuilder;
+  }
   public async getAllPaginatedWithWeightCount(
     page: number,
     limit: number,
   ): Promise<ApiPaginatedResponse<ContractEntity>> {
-    const queryBuilder = this.repository
+    const queryBuilder = this.contractRepository
       .createQueryBuilder('contracts')
-      .leftJoinAndSelect('contracts.contractResources', 'contractResources')
-      .leftJoinAndSelect('contractResources.resource', 'resource')
-      .select([
-        'contracts.id',
-        'contracts.originPlanetId',
-        'contracts.destinationPlanetId',
-        'contracts.pilotId',
-        'contracts.description',
-        'contracts.value',
+      .leftJoin('contracts.contractResources', 'contractResources')
+      .leftJoin('contractResources.resource', 'resource')
+      .addSelect([
         'SUM(resource.weight * contractResources.quantity) AS contracts_payload',
       ])
       .groupBy('contracts.id')
@@ -49,17 +55,17 @@ export class ContractService extends BaseService<ContractEntity> {
 
   protected async validateResourcesList(
     contractResources: ContractResource[],
-    queryRunner: QueryRunner,
   ): Promise<ResourceEntity[]> {
     this.logger.log('Validate resources list');
     const resourcesIds = contractResources.map(
       (resource) => resource.resourceId,
     );
-    const existentResources = await queryRunner.manager
+    const existentResources = await this.getEntityManager()
       .getRepository(ResourceEntity)
       .createQueryBuilder('resources')
       .where('resources.id IN (:...resources)', { resources: resourcesIds })
       .getMany();
+
     if (existentResources.length !== resourcesIds.length) {
       throw new Error('One or more resources do not exist');
     }
@@ -72,7 +78,7 @@ export class ContractService extends BaseService<ContractEntity> {
     destinationPlanetId: number,
   ): Promise<void> {
     this.logger.log('Validate travel config');
-    const travelConfig = await this.dataSource.manager
+    const travelConfig = await this.getEntityManager()
       .getRepository(TravelConfigEntity)
       .findOne({
         where: {
@@ -91,77 +97,46 @@ export class ContractService extends BaseService<ContractEntity> {
   protected async storeContractResources(
     contractId: number,
     contractResources: ContractResource[],
-    queryRunner?: QueryRunner,
   ) {
     this.logger.log('Store contract resources');
 
-    const repository = queryRunner
-      ? queryRunner.manager.getRepository(ContractResourceEntity)
-      : this.dataSource.getRepository(ContractResourceEntity);
-
-    await repository.insert(
-      contractResources.map((resource) => ({
-        contractId,
-        ...resource,
-      })),
-    );
+    await this.getEntityManager()
+      .getRepository(ContractResourceEntity)
+      .insert(
+        contractResources.map((resource) => ({
+          contractId,
+          ...resource,
+        })),
+      );
   }
 
-  protected async storeContract(
-    contract: DeepPartial<ContractEntity>,
-    status: ContractStatusEnum = ContractStatusEnum.PENDING_RESOURCES,
-    queryRunner?: QueryRunner,
-  ) {
-    this.logger.log('Store contract');
-
-    const repository = queryRunner
-      ? queryRunner.manager.getRepository(ContractEntity)
-      : this.dataSource.getRepository(ContractEntity);
-
-    return await repository.save({
-      ...contract,
-      status: status,
-    });
-  }
-
-  public async storeValidatingTravelConfigsAndResources(
+  public async storeWithResources(
     contract: DeepPartial<ContractEntity>,
     contractResources: ContractResource[],
   ) {
     this.logger.log('Store validating travel configs and resources');
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    try {
-      await queryRunner.startTransaction();
+
+    return this.executeInTransaction(async (queryRunner: QueryRunner) => {
       await this.validateTravelConfig(
         contract.originPlanetId,
         contract.destinationPlanetId,
       );
+      await this.validateResourcesList(contractResources);
 
-      await this.validateResourcesList(contractResources, queryRunner);
+      const createdContract = await queryRunner.manager.save(ContractEntity, {
+        status: ContractStatusEnum.PENDING,
+        ...contract,
+      });
 
-      const result = await this.storeContract(
-        contract,
-        ContractStatusEnum.PENDING,
-        queryRunner,
+      await queryRunner.manager.getRepository(ContractResourceEntity).insert(
+        contractResources.map((resource) => ({
+          contractId: createdContract.id,
+          ...resource,
+        })),
       );
 
-      await this.storeContractResources(
-        result.id,
-        contractResources,
-        queryRunner,
-      );
-
-      await queryRunner.commitTransaction();
-
-      return result;
-    } catch (error) {
-      this.logger.error(error);
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      queryRunner.release();
-    }
+      return createdContract;
+    });
   }
 
   public acceptContract(id: number) {

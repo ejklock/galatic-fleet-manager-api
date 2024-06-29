@@ -24,10 +24,7 @@ export class ContractController {
   @Post()
   async create(@Body() createContractDto: CreateContractDto) {
     const { resources, ...createDto } = createContractDto;
-    return await this.contractService.storeValidatingTravelConfigsAndResources(
-      createDto,
-      resources,
-    );
+    return await this.contractService.storeWithResources(createDto, resources);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -41,7 +38,7 @@ export class ContractController {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   findOne(@Param('id') id: number) {
-    return this.contractService.findOne(id);
+    return this.contractService.findOneWithWeightCount(id);
   }
 
   @HttpCode(HttpStatus.CREATED)

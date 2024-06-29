@@ -12,4 +12,7 @@ export class ShipService extends BaseService<ShipEntity> {
   ) {
     super(shipRepository);
   }
+
+  public validadePilotCredits(pilotId: number, credits: number) {}
+  public async addFuelToShip(shipId: number, fuelQuantity: number) {}
 }

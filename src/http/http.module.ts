@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ContractResourceModule } from 'src/domains/contract-resource/contract-resource.module';
 import { ContractModule } from 'src/domains/contract/contract.module';
+import { PilotCreditTransactionModule } from 'src/domains/pilot-credit-transaction/pilot-credit-transaction.module';
 import { PilotModule } from 'src/domains/pilot/pilot.module';
 import { PlanetModule } from 'src/domains/planet/planet.module';
 import { ResourceModule } from 'src/domains/resource/resource.module';
@@ -22,6 +23,7 @@ import { ResponseInterceptor } from './interceptors/response.interceptor';
     ShipModule,
     TravelConfigModule,
     PlanetModule,
+    PilotCreditTransactionModule,
   ],
   controllers: [ContractController, PilotController, ShipController],
   providers: [

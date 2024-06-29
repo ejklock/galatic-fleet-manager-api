@@ -5,11 +5,13 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-export class CreatePilotsTable1719413649178 implements MigrationInterface {
+export class CreatePilotCreditTransactionsTable1719623103327
+  implements MigrationInterface
+{
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'pilots',
+        name: 'pilot_credit_transactions',
         columns: [
           {
             name: 'id',
@@ -20,43 +22,47 @@ export class CreatePilotsTable1719413649178 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
-            name: 'location_planet_id',
+            name: 'pilot_id',
             type: 'bigint',
             unsigned: true,
           },
           {
-            name: 'certification',
-            type: 'varchar',
-            length: '7',
-            isUnique: true,
+            name: 'amount',
+            type: 'decimal',
+            precision: 10,
+            scale: 2,
           },
           {
-            name: 'name',
+            name: 'transaction_type',
+            type: 'enum',
+            enum: ['CREDIT', 'DEBIT'],
+          },
+          {
+            name: 'description',
             type: 'varchar',
             length: '255',
+            isNullable: true,
           },
           {
-            name: 'age',
-            unsigned: true,
-            type: 'tinyint',
+            name: 'created_at',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
           },
         ],
       }),
     );
-
     await queryRunner.createForeignKey(
-      'pilots',
+      'pilot_credit_transactions',
       new TableForeignKey({
-        name: 'FK_PILOTS_LOCATION_PLANET',
-        columnNames: ['location_planet_id'],
+        name: 'FK_CREDIT_TRANSACTIONS_PILOT',
+        columnNames: ['pilot_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'planets',
-        onDelete: 'CASCADE',
+        referencedTableName: 'pilots',
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('pilots');
+    await queryRunner.dropTable('pilot_credit_transactions', true, true, true);
   }
 }

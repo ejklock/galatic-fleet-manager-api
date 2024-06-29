@@ -58,16 +58,6 @@ export class CreatePilotDto {
   age: number;
 
   @ApiProperty({
-    example: 1000,
-    required: true,
-    type: Number,
-    description: 'Pilot credits',
-  })
-  @IsNumber()
-  @Min(0)
-  credits: number;
-
-  @ApiProperty({
     example: [1, 2, 3],
     required: false,
     type: [Number],

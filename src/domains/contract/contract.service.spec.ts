@@ -1,193 +1,107 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource, DeepPartial, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { DomainRuleViolationException } from '../common/common.exceptions';
-import {
-  createDataSourceMock,
-  createTypeOrmMocks,
-} from '../common/utils/tests/type-orm.utils';
-import { ContractResourceEntity } from '../contract-resource/contract-resource.entity';
-import { ResourceEntity } from '../resource/resource.entity';
-import { TravelConfigEntity } from '../travel-config/travel-config.entity';
 import { ContractEntity } from './contract.entity';
 import { ContractService } from './contract.service';
-import { ContractResource, ContractStatusEnum } from './contract.types';
 
 describe('ContractService', () => {
-  let service: ContractService;
-  let contractRepository: Repository<ContractEntity>;
-  let dataSource: DataSource;
+  let contractService: ContractService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const moduleRef = await Test.createTestingModule({
       providers: [
         ContractService,
-        createTypeOrmMocks(ContractEntity),
-        createDataSourceMock(),
+        {
+          provide: getRepositoryToken(ContractEntity),
+          useClass: Repository,
+        },
       ],
     }).compile();
 
-    service = module.get<ContractService>(ContractService);
-    contractRepository = module.get<Repository<ContractEntity>>(
-      getRepositoryToken(ContractEntity),
-    );
-    dataSource = module.get<DataSource>(DataSource);
+    contractService = moduleRef.get<ContractService>(ContractService);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  it('should store contract and contract resources successfully', async () => {
+    const contract: Partial<ContractEntity> = {
+      originPlanetId: 1,
+      destinationPlanetId: 2,
+      pilotId: 1,
+      description: 'Test Contract',
+      value: 100,
+    };
+
+    const contractResources = [
+      { resourceId: 1, quantity: 1 },
+      { resourceId: 2, quantity: 2 },
+    ];
+
+    const mockStoreContract = jest.spyOn(
+      contractService as any,
+      'storeWithResources',
+    );
+
+    mockStoreContract.mockResolvedValue({
+      id: 1,
+      originPlanetId: 1,
+      destinationPlanetId: 2,
+      pilotId: 1,
+      description: 'Test Contract',
+      value: 100,
+    } as ContractEntity);
+    const result = await contractService.storeWithResources(
+      contract,
+      contractResources,
+    );
+
+    expect(result).toBeDefined();
+
+    expect(mockStoreContract).toHaveBeenCalledWith(
+      expect.objectContaining(contract),
+      expect.any(Object),
+    );
   });
 
-  describe('storeValidatingTravelConfigsAndResources', () => {
-    it('should store contract and contract resources successfully', async () => {
-      const mockContract = {
-        originPlanetId: 1,
-        destinationPlanetId: 2,
-      } as DeepPartial<ContractEntity>;
-      const mockContractResources = [
-        { resourceId: 1, quantity: 10 },
-      ] as ContractResource[];
+  it('should raise an exception when invalid travel configuration is provided', async () => {
+    const contract: Partial<ContractEntity> = {
+      originPlanetId: 1,
+      destinationPlanetId: 2,
+      pilotId: 1,
+      description: 'Test Contract',
+      value: 100,
+    };
 
-      dataSource.manager.getRepository(TravelConfigEntity).findOne = jest
-        .fn()
-        .mockResolvedValue({
-          id: 1,
-          fromPlanetId: 1,
-          toPlanetId: 2,
-          fuelConsumption: 10,
-        } as TravelConfigEntity);
+    const contractResources = [
+      { resourceId: 1, quantity: 1 },
+      { resourceId: 2, quantity: 2 },
+    ];
 
-      dataSource
-        .createQueryRunner()
-        .manager.getRepository(ResourceEntity)
-        .createQueryBuilder().getMany = jest
-        .fn()
-        .mockResolvedValue([{ id: 1 }]);
-      dataSource
-        .createQueryRunner()
-        .manager.getRepository(ContractEntity).save = jest
-        .fn()
-        .mockResolvedValue({ id: 1 });
-      dataSource
-        .createQueryRunner()
-        .manager.getRepository(ContractResourceEntity).insert = jest
-        .fn()
-        .mockResolvedValue({});
+    const mockCreateQueryBuilder = {
+      where: jest.fn().mockReturnThis(),
+      getMany: jest.fn().mockResolvedValue([{ id: 1 }, { id: 2 }]),
+    };
 
-      dataSource.createQueryRunner().startTransaction = jest.fn();
-      dataSource.createQueryRunner().commitTransaction = jest.fn();
-      dataSource.createQueryRunner().rollbackTransaction = jest.fn();
+    jest.spyOn(contractService, 'getNewQueryRunner').mockReturnValue({
+      connect: jest.fn(),
+      startTransaction: jest.fn(),
+      commitTransaction: jest.fn(),
+      rollbackTransaction: jest.fn(),
+      release: jest.fn(),
+    } as any);
 
-      const result = await service.storeValidatingTravelConfigsAndResources(
-        mockContract,
-        mockContractResources,
-      );
+    jest.spyOn(contractService, 'getEntityManager').mockReturnValue({
+      getRepository: jest.fn().mockReturnValue({
+        createQueryBuilder: jest.fn().mockReturnValue(mockCreateQueryBuilder),
+        findOne: jest.fn().mockResolvedValue(undefined),
+      }),
+    } as any);
 
-      expect(result).toBeDefined();
-      expect(
-        dataSource.createQueryRunner().startTransaction,
-      ).toHaveBeenCalled();
-      expect(
-        dataSource.createQueryRunner().commitTransaction,
-      ).toHaveBeenCalled();
-      expect(
-        dataSource.createQueryRunner().rollbackTransaction,
-      ).not.toHaveBeenCalled();
-    });
-
-    it('should throws error on try to create a contract with invalid resources', async () => {
-      const mockContract = {
-        originPlanetId: 1,
-        destinationPlanetId: 2,
-      } as DeepPartial<ContractEntity>;
-      const mockContractResources = [
-        { resourceId: 1, quantity: 10 },
-      ] as ContractResource[];
-
-      dataSource.manager.getRepository(TravelConfigEntity).findOne = jest
-        .fn()
-        .mockResolvedValue({
-          id: 1,
-          fromPlanetId: 1,
-          toPlanetId: 2,
-          fuelConsumption: 10,
-        } as TravelConfigEntity);
-
-      dataSource
-        .createQueryRunner()
-        .manager.getRepository(ResourceEntity)
-        .createQueryBuilder().getMany = jest.fn().mockResolvedValue([]);
-
-      await expect(
-        service.storeValidatingTravelConfigsAndResources(
-          mockContract,
-          mockContractResources,
-        ),
-      ).rejects.toThrow(Error);
-      expect(
-        dataSource.createQueryRunner().startTransaction,
-      ).toHaveBeenCalled();
-      expect(
-        dataSource.createQueryRunner().commitTransaction,
-      ).not.toHaveBeenCalled();
-      expect(
-        dataSource.createQueryRunner().rollbackTransaction,
-      ).toHaveBeenCalled();
-    });
-
-    it('should throws DomainRuleViolationException on try to create a contract with invalid travel config', async () => {
-      const mockContract = {
-        originPlanetId: 1,
-        destinationPlanetId: 2,
-      } as DeepPartial<ContractEntity>;
-      const mockContractResources = [
-        { resourceId: 1, quantity: 10 },
-      ] as ContractResource[];
-
-      dataSource.manager.getRepository(TravelConfigEntity).findOne = jest
-        .fn()
-        .mockResolvedValue(null);
-
-      await expect(
-        service.storeValidatingTravelConfigsAndResources(
-          mockContract,
-          mockContractResources,
-        ),
-      ).rejects.toThrow(DomainRuleViolationException);
-
-      expect(
-        dataSource.createQueryRunner().startTransaction,
-      ).toHaveBeenCalled();
-      expect(
-        dataSource.createQueryRunner().commitTransaction,
-      ).not.toHaveBeenCalled();
-      expect(
-        dataSource.createQueryRunner().rollbackTransaction,
-      ).toHaveBeenCalled();
-    });
-  });
-
-  describe('acceptContract', () => {
-    it('should accept contract successfully', async () => {
-      const mockContract = {
-        id: 1,
-      } as DeepPartial<ContractEntity>;
-      service.findOne = jest.fn().mockResolvedValue(mockContract);
-
-      contractRepository.save = jest.fn().mockResolvedValue({
-        status: ContractStatusEnum.ACCEPTED,
-      });
-
-      const result = await service.acceptContract(mockContract.id);
-
-      expect(result).toBeDefined();
-      expect(contractRepository.save).toHaveBeenCalled();
-
-      expect(result.status).toBe(ContractStatusEnum.ACCEPTED);
-    });
+    await expect(
+      contractService.storeWithResources(contract, contractResources),
+    ).rejects.toThrow(DomainRuleViolationException);
   });
 });

@@ -33,13 +33,13 @@ export class PilotController {
   @ApiQuery({ name: 'limit', type: Number, required: false, example: 10 })
   @Get()
   findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
-    return this.pilotService.getAllPaginated(page, limit);
+    return this.pilotService.getAllPaginatedWithCredits(page, limit);
   }
 
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   findOne(@Param('id') id: number) {
-    return this.pilotService.findOne(id);
+    return this.pilotService.findOneWithCredits(id);
   }
 
   @HttpCode(HttpStatus.CREATED)
