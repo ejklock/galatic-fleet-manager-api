@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -31,19 +32,25 @@ export class ShipController {
   @ApiQuery({ name: 'page', type: Number, required: false, example: 1 })
   @ApiQuery({ name: 'limit', type: Number, required: false, example: 10 })
   findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
-    return this.shipService.getAllPaginated(page, limit);
+    return this.shipService.getAllWithCurrentFuelLevelPaginated(page, limit);
   }
 
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.shipService.findOne(+id);
+    return this.shipService.findOneWithCurrentFuelLevel(+id);
   }
 
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   update(@Param('id') id: number, @Body() updateShipDto: UpdateShipDto) {
     return this.shipService.update(id, updateShipDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Put(':id/add-fuel/:amount')
+  addFuel(@Param('id') id: number, @Param('amount') fuelAmount: number) {
+    return this.shipService.addFuel(id, fuelAmount);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

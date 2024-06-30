@@ -11,6 +11,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { HttpModule } from './http/http.module';
 import { StorageModule } from './storage/storage.module';
+import { ReportModule } from './domains/report/report.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { StorageModule } from './storage/storage.module';
 
     HttpModule,
     StorageModule,
+    ReportModule,
   ],
 
   providers: [],

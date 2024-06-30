@@ -14,7 +14,7 @@ export class ContractResourceEntity extends BaseEntity {
   @Column()
   quantity: number;
 
-  @ManyToOne(() => ContractEntity, (contract) => contract.contractResources)
+  @ManyToOne(() => ContractEntity, (contract) => contract.payload)
   @JoinColumn({ name: 'contract_id' })
   contract: ContractEntity;
 

@@ -33,15 +33,15 @@ export class ContractEntity extends BaseEntity {
   status: ContractStatusEnum;
 
   @Column({
-    name: 'payload',
+    name: 'total_weight',
     select: false,
     insert: false,
     update: false,
     nullable: true,
     transformer: new DecimalColumnTransformer(),
   })
-  payload: number;
+  totalWeight: number;
 
   @OneToMany(() => ContractResourceEntity, (resource) => resource.contract)
-  contractResources: ContractResourceEntity[];
+  payload: ContractResourceEntity[];
 }

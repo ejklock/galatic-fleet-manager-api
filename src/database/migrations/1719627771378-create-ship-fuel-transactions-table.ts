@@ -39,10 +39,9 @@ export class CreateShipFuelTransactionsTable1719627771378
             isNullable: true,
           },
           {
-            name: 'transactionType',
+            name: 'transaction_type',
             type: 'enum',
             enum: ['CREDIT', 'DEBIT'],
-            length: '50',
           },
           {
             name: 'created_at',

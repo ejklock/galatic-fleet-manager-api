@@ -1,7 +1,14 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { DomainRuleViolationException } from '../common/common.exceptions';
+import { ContractResourceEntity } from '../contract-resource/contract-resource.entity';
+import { ContractResourceService } from '../contract-resource/contract-resource.service';
+import { PilotEntity } from '../pilot/pilot.entity';
+import { PilotService } from '../pilot/pilot.service';
+import { ResourceEntity } from '../resource/resource.entity';
+import { TravelConfigEntity } from '../travel-config/travel-config.entity';
+import { TravelConfigService } from '../travel-config/travel-config.service';
 import { ContractEntity } from './contract.entity';
 import { ContractService } from './contract.service';
 
@@ -12,9 +19,32 @@ describe('ContractService', () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         ContractService,
+        PilotService,
+        TravelConfigService,
+        ContractResourceService,
         {
           provide: getRepositoryToken(ContractEntity),
           useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(ContractResourceEntity),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(TravelConfigEntity),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(PilotEntity),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(ResourceEntity),
+          useClass: Repository,
+        },
+        {
+          provide: DataSource, // Mock the DataSource dependency
+          useValue: {}, // You can use an empty object or a more detailed mock if needed
         },
       ],
     }).compile();
@@ -85,20 +115,43 @@ describe('ContractService', () => {
       getMany: jest.fn().mockResolvedValue([{ id: 1 }, { id: 2 }]),
     };
 
+    const mockGetRepository = jest.fn().mockImplementation((entity) => {
+      switch (entity) {
+        case TravelConfigEntity:
+          return {
+            findOne: jest.fn().mockResolvedValue(undefined),
+          };
+        case ResourceEntity:
+          return {
+            createQueryBuilder: jest
+              .fn()
+              .mockReturnValue(mockCreateQueryBuilder),
+          };
+        case PilotEntity:
+          return {
+            findOne: jest.fn().mockResolvedValue({ id: 1 }),
+          };
+        default:
+          return {};
+      }
+    });
+
+    const mockEntityManager = {
+      getRepository: mockGetRepository,
+    };
+
     jest.spyOn(contractService, 'getNewQueryRunner').mockReturnValue({
       connect: jest.fn(),
       startTransaction: jest.fn(),
       commitTransaction: jest.fn(),
       rollbackTransaction: jest.fn(),
       release: jest.fn(),
+      manager: mockEntityManager,
     } as any);
 
-    jest.spyOn(contractService, 'getEntityManager').mockReturnValue({
-      getRepository: jest.fn().mockReturnValue({
-        createQueryBuilder: jest.fn().mockReturnValue(mockCreateQueryBuilder),
-        findOne: jest.fn().mockResolvedValue(undefined),
-      }),
-    } as any);
+    jest
+      .spyOn(contractService, 'getEntityManager')
+      .mockReturnValue(mockEntityManager as any);
 
     await expect(
       contractService.storeWithResources(contract, contractResources),

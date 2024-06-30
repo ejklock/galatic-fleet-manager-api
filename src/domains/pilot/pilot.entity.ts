@@ -1,4 +1,4 @@
-import { DecimalColumnTransformer } from 'src/utils/app.transformers';
+import { DecimalColumnTransformer } from '../../utils/app.transformers';
 
 import { Column, Entity, JoinTable, OneToMany } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';

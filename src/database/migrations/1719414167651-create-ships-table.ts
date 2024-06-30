@@ -15,12 +15,6 @@ export class CreateShipsTable1719414167651 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
-            name: 'fuel_level',
-            type: 'decimal',
-            precision: 10,
-            scale: 2,
-          },
-          {
             name: 'fuel_capacity',
             type: 'decimal',
             precision: 10,

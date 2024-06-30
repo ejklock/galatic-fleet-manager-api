@@ -4,7 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, QueryRunner, Repository } from 'typeorm';
 import BaseService from '../common/base.service';
 import { ApiPaginatedResponse } from '../common/common.types';
-import { ShipEntity } from '../ship/ship.entity';
+import { PilotShipService } from '../pilot-ship/pilot-ship.service';
+import { ShipService } from '../ship/ship.service';
 import { PilotEntity } from './pilot.entity';
 
 @Injectable()
@@ -12,6 +13,8 @@ export class PilotService extends BaseService<PilotEntity> {
   constructor(
     @InjectRepository(PilotEntity)
     private readonly pilotRepository: Repository<PilotEntity>,
+    private readonly shipService: ShipService,
+    private readonly pilotShipService: PilotShipService,
   ) {
     super(pilotRepository);
   }
@@ -32,6 +35,8 @@ export class PilotService extends BaseService<PilotEntity> {
   public async getAllPaginatedWithCredits(
     page: number,
     limit: number,
+    orderBy = 'id',
+    orderWay: 'ASC' | 'DESC' = 'ASC',
   ): Promise<ApiPaginatedResponse<PilotEntity>> {
     this.logger.log('Get all paginated with credits');
     const queryBuilder = this.repository
@@ -41,7 +46,7 @@ export class PilotService extends BaseService<PilotEntity> {
         'COALESCE(SUM(pilotCreditTransactions.amount),0) AS pilots_credits',
       ])
       .groupBy('pilots.id')
-      .orderBy('pilots.id', 'ASC')
+      .orderBy(`pilots.${orderBy}`, orderWay)
       .skip((page - 1) * limit)
       .take(limit);
 
@@ -69,18 +74,23 @@ export class PilotService extends BaseService<PilotEntity> {
       .getOne();
   }
 
-  private async validateIfShipsExists(ships?: number[]): Promise<void> {
-    this.logger.log('Validate if ships exists');
-    if (ships && ships.length !== 0) {
-      const existentShips = await this.getEntityManager()
-        .getRepository(ShipEntity)
-        .createQueryBuilder('pilot_ships')
-        .where('pilot_ships.id IN (:...ships)', { ships })
-        .getMany();
-      if (existentShips.length !== ships.length) {
-        throw new Error('One or more ships do not exist');
-      }
+  public async validatePilot(
+    pilotId: number,
+    queryRunner?: QueryRunner,
+  ): Promise<PilotEntity> {
+    this.logger.log('Validate pilot');
+
+    const pilotRepository = queryRunner
+      ? queryRunner.manager.getRepository(PilotEntity)
+      : this.getEntityManager().getRepository(PilotEntity);
+
+    const pilot = await pilotRepository.findOne({
+      where: { id: pilotId },
+    });
+    if (!pilot) {
+      throw new Error('Pilot does not exist');
     }
+    return pilot;
   }
 
   public async storeWithShips(
@@ -88,16 +98,11 @@ export class PilotService extends BaseService<PilotEntity> {
     ships?: number[],
   ): Promise<PilotEntity> {
     this.logger.log('Store with ships');
-    await this.validateIfShipsExists(ships);
+    await this.shipService.validateIfShipsExists(ships);
     return await this.executeInTransaction(async (queryRunner: QueryRunner) => {
       const pilot = await queryRunner.manager.save(PilotEntity, item);
 
-      await queryRunner.manager
-        .createQueryBuilder()
-        .insert()
-        .into('pilot_ships', ['pilot_id', 'ship_id'])
-        .values(ships.map((ship) => ({ pilotId: pilot.id, shipId: ship })))
-        .execute();
+      await this.pilotShipService.storePilotShips(pilot.id, ships, queryRunner);
 
       return pilot;
     });

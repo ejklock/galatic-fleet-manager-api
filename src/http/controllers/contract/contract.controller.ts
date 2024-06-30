@@ -32,13 +32,13 @@ export class ContractController {
   @ApiQuery({ name: 'limit', type: Number, required: false, example: 10 })
   @Get()
   findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
-    return this.contractService.getAllPaginatedWithWeightCount(page, limit);
+    return this.contractService.getAllPaginatedWithTotalWeight(page, limit);
   }
 
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   findOne(@Param('id') id: number) {
-    return this.contractService.findOneWithWeightCount(id);
+    return this.contractService.findOneWithTotalWeight(id);
   }
 
   @HttpCode(HttpStatus.CREATED)

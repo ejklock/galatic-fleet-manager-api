@@ -1,6 +1,8 @@
-import { DecimalColumnTransformer } from 'src/utils/app.transformers';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { DecimalColumnTransformer } from '../../utils/app.transformers';
 import { BaseEntity } from '../common/base.entity';
+import { PilotShipEntity } from '../pilot-ship/pilot-ship.entity';
+import { ShipFuelTransactionEntity } from '../ship-fuel-transaction/ship-fuel-transaction.entity';
 
 @Entity('ships')
 export class ShipEntity extends BaseEntity {
@@ -14,6 +16,19 @@ export class ShipEntity extends BaseEntity {
   fuelCapacity: number;
 
   @Column({
+    name: 'weight_capacity',
+    type: 'decimal',
+    precision: 10,
+    scale: 3,
+    transformer: new DecimalColumnTransformer(),
+  })
+  weightCapacity: number;
+
+  @Column({
+    select: false,
+    update: false,
+    insert: false,
+    nullable: true,
     name: 'fuel_level',
     type: 'decimal',
     precision: 10,
@@ -22,12 +37,9 @@ export class ShipEntity extends BaseEntity {
   })
   fuelLevel: number;
 
-  @Column({
-    name: 'weight_capacity',
-    type: 'decimal',
-    precision: 10,
-    scale: 3,
-    transformer: new DecimalColumnTransformer(),
-  })
-  weightCapacity: number;
+  @OneToMany(() => ShipFuelTransactionEntity, (resource) => resource.ship)
+  shipFuelTransactions: ShipFuelTransactionEntity[];
+
+  @OneToMany(() => PilotShipEntity, (pilotShip) => pilotShip.ship)
+  pilotShip: PilotShipEntity;
 }

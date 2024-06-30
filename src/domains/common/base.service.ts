@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import {
   DeepPartial,
   EntityManager,
+  EntityTarget,
   FindOneOptions,
   QueryRunner,
   Repository,
@@ -19,6 +20,14 @@ export default class BaseService<T extends BaseEntity> {
     return this.repository.manager;
   }
 
+  public getRepository(
+    targetEntity: EntityTarget<T>,
+    queryRunner?: QueryRunner,
+  ): Repository<T> {
+    return queryRunner
+      ? queryRunner.manager.getRepository(targetEntity)
+      : this.getEntityManager().getRepository(this.repository.target);
+  }
   public getNewQueryRunner(): QueryRunner {
     return this.repository.manager.connection.createQueryRunner();
   }

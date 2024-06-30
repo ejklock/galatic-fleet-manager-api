@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { BaseEntity } from '../common/base.entity';
+import { ShipEntity } from '../ship/ship.entity';
 
 @Entity('pilot_ships')
 export class PilotShipEntity extends BaseEntity {
@@ -8,6 +9,10 @@ export class PilotShipEntity extends BaseEntity {
 
   @Column({ name: 'ship_id' })
   shipId: number;
+
+  @OneToOne(() => ShipEntity, (ship) => ship.id)
+  @JoinColumn({ name: 'ship_id' })
+  ship: ShipEntity;
 
   // @OneToOne(() => PilotEntity, (pilot) => pilot.id)
   // pilot: PilotEntity;

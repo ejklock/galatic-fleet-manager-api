@@ -1,5 +1,5 @@
-import { DecimalColumnTransformer } from 'src/utils/app.transformers';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { DecimalColumnTransformer } from '../../utils/app.transformers';
 import { BaseEntity } from '../common/base.entity';
 import { PilotEntity } from '../pilot/pilot.entity';
 import { PilotCreditTransactionTypeEnum } from './pilot-credit-transaction.types';
@@ -24,6 +24,16 @@ export class PilotCreditTransactionEntity extends BaseEntity {
 
   @Column({ name: 'created_at' })
   createdAt: Date;
+
+  @Column({
+    select: false,
+    insert: false,
+    update: false,
+    name: 'current_balance',
+    type: 'decimal',
+    transformer: new DecimalColumnTransformer(),
+  })
+  currentBalance: number;
 
   @ManyToOne(() => PilotEntity, (pilot) => pilot.pilotCreditTransactions)
   @JoinColumn({ name: 'pilot_id' })
