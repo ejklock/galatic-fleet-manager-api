@@ -1,12 +1,14 @@
 import { Test } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
 import { DomainRuleViolationException } from '../common/common.exceptions';
-import { ContractResourceEntity } from '../contract-resource/contract-resource.entity';
+import { mockRepositoryProviders } from '../common/test/utils';
 import { ContractResourceService } from '../contract-resource/contract-resource.service';
+import { PilotCreditTransactionService } from '../pilot-credit-transaction/pilot-credit-transaction.service';
+import { PilotShipService } from '../pilot-ship/pilot-ship.service';
 import { PilotEntity } from '../pilot/pilot.entity';
 import { PilotService } from '../pilot/pilot.service';
 import { ResourceEntity } from '../resource/resource.entity';
+import { ShipFuelTransactionService } from '../ship-fuel-transaction/ship-fuel-transaction.service';
+import { ShipService } from '../ship/ship.service';
 import { TravelConfigEntity } from '../travel-config/travel-config.entity';
 import { TravelConfigService } from '../travel-config/travel-config.service';
 import { ContractEntity } from './contract.entity';
@@ -22,30 +24,11 @@ describe('ContractService', () => {
         PilotService,
         TravelConfigService,
         ContractResourceService,
-        {
-          provide: getRepositoryToken(ContractEntity),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(ContractResourceEntity),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(TravelConfigEntity),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(PilotEntity),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(ResourceEntity),
-          useClass: Repository,
-        },
-        {
-          provide: DataSource, // Mock the DataSource dependency
-          useValue: {}, // You can use an empty object or a more detailed mock if needed
-        },
+        PilotShipService,
+        PilotCreditTransactionService,
+        ShipService,
+        ShipFuelTransactionService,
+        ...mockRepositoryProviders,
       ],
     }).compile();
 

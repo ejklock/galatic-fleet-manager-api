@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { mockRepositoryProviders } from '../common/test/utils';
 import { ShipFuelTransactionService } from './ship-fuel-transaction.service';
 
 describe('ShipFuelTransactionService', () => {
@@ -6,10 +7,12 @@ describe('ShipFuelTransactionService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ShipFuelTransactionService],
+      providers: [ShipFuelTransactionService, ...mockRepositoryProviders],
     }).compile();
 
-    service = module.get<ShipFuelTransactionService>(ShipFuelTransactionService);
+    service = module.get<ShipFuelTransactionService>(
+      ShipFuelTransactionService,
+    );
   });
 
   it('should be defined', () => {
