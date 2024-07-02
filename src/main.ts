@@ -15,24 +15,21 @@ async function bootstrap() {
   );
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  // Use DocumentBuilder to create a new Swagger document configuration
   const config = new DocumentBuilder()
 
-    .setTitle('Galactic Fleet Manager API') // Set the title of the API
+    .setTitle('Galactic Fleet Manager API')
     .setDescription(
       'An application to manage the transport fleet of goods through the galaxy, including four planets.',
-    ) // Set the description of the API
-    .setVersion('v1') // Set the version of the API
-    .build(); // Build the document
+    )
+    .setVersion('v1')
+    .build();
 
-  // Create a Swagger document using the application instance and the document configuration
   const document = SwaggerModule.createDocument(app, config, {
     include: [HttpModule],
     extraModels: [],
     deepScanRoutes: true,
   });
 
-  // Setup Swagger module with the application instance and the Swagger document
   SwaggerModule.setup('/', app, document, {
     useGlobalPrefix: true,
     customSiteTitle: 'Galactic Fleet Manager API',

@@ -12,6 +12,7 @@ import { join } from 'path';
 import { HttpModule } from './http/http.module';
 import { StorageModule } from './storage/storage.module';
 import { ReportModule } from './domains/report/report.module';
+import { FederationTransactionLedgerModule } from './domains/federation-transaction-ledger/federation-transaction-ledger.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ReportModule } from './domains/report/report.module';
     HttpModule,
     StorageModule,
     ReportModule,
+    FederationTransactionLedgerModule,
   ],
 
   providers: [],

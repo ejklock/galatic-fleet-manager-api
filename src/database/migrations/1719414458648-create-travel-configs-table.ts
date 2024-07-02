@@ -77,7 +77,7 @@ export class CreateTravelConfigsTable1719414458648
     );
 
     await queryRunner.query(`
-      CREATE FUNCTION calculate_hash(from_id BIGINT, to_id BIGINT) RETURNS VARCHAR(32)
+      CREATE FUNCTION IF NOT EXISTS calculate_hash(from_id BIGINT, to_id BIGINT) RETURNS VARCHAR(32)
       DETERMINISTIC
       BEGIN
         RETURN MD5(CONCAT(from_id, '::', to_id));
@@ -86,7 +86,7 @@ export class CreateTravelConfigsTable1719414458648
     `);
 
     await queryRunner.query(`
-      CREATE TRIGGER trg_insert_unique_hash
+      CREATE TRIGGER IF NOT EXISTS trg_insert_unique_hash
       BEFORE INSERT ON travel_configs
       FOR EACH ROW
       BEGIN
@@ -95,7 +95,7 @@ export class CreateTravelConfigsTable1719414458648
     `);
 
     await queryRunner.query(`
-      CREATE TRIGGER trg_update_unique_hash
+      CREATE TRIGGER IF NOT EXISTS trg_update_unique_hash
       BEFORE UPDATE ON travel_configs
       FOR EACH ROW
       BEGIN

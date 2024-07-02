@@ -1,9 +1,11 @@
 import { registerAs } from '@nestjs/config';
 import { config as dotenvConfig } from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
-dotenvConfig({ path: '.env' });
 
-const config = {
+const envPathToLoad = process.env.NODE_ENV === 'test' ? '.env.test' : '.env';
+dotenvConfig({ path: envPathToLoad });
+
+export const mysqlConfig = {
   type: 'mysql',
   host: process.env.MYSQL_DATABASE_HOST,
   port: parseInt(process.env.MYSQL_DATABASE_PORT, 10) || 3306,
@@ -17,6 +19,8 @@ const config = {
   synchronize: !!process.env.MYSQL_DATABASE_SYNCHRONIZE || false,
 };
 
-export default registerAs('db-mysql', () => config);
+export default registerAs('db-mysql', () => mysqlConfig);
 
-export const connectionSource = new DataSource(config as DataSourceOptions);
+export const connectionSource = new DataSource(
+  mysqlConfig as DataSourceOptions,
+);

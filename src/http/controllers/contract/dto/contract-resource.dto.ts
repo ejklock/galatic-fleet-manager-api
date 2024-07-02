@@ -1,6 +1,6 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, Min } from 'class-validator';
-import { ValidResource } from 'src/domains/resource/validators/valid-resource.validator';
+import { ValidResource } from '../../../../domains/resource/validators/valid-resource.validator';
 
 @ApiExtraModels()
 export class ContractResourceDto {

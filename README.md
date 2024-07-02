@@ -1,73 +1,292 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Intergalactic Fleet Manager
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Intergalactic Fleet Manager is a comprehensive application designed to manage fleets, contracts, and space travel. It is built using NestJS, TypeORM, and MySQL 8, running on Node.js 20.14
 
-## Description
+## Technologies
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Docker**
+- **Docker Compose**
+- **TypeScript**
+- **NestJS**
+- **TypeORM**
+- **MySQL 8**
+- **Node.js 20.14**
 
-## Installation
+## Getting Started
 
-```bash
-$ npm install
-```
+To get started with the application, follow these steps:
 
-## Running the app
+### Prerequisites
 
-```bash
-# development
-$ npm run start
+Ensure you have Docker and Docker Compose installed on your machine.
 
-# watch mode
-$ npm run start:dev
+### Running the Application
 
-# production mode
-$ npm run start:prod
-```
+1. **Start the application**:
 
-## Test
+   ```bash
+   docker-compose up --build
+   ```
 
-```bash
-# unit tests
-$ npm run test
+   This command will build and start the application along with its dependencies, including MySQL.
 
-# e2e tests
-$ npm run test:e2e
+2. **Run the database migrations**:
 
-# test coverage
-$ npm run test:cov
-```
+   ```bash
+   docker-compose exec app npm run typeorm:migration:run
+   ```
 
-## Support
+   This command will execute all pending database migrations to set up the schema.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+3. **Access the application**:
 
-## Stay in touch
+   Open your browser and go to [http://localhost:3333](http://localhost:3333). You will find the Swagger documentation for the API.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## API Usage
 
-## License
+Use Swagger interface to manage ships, pilots, contracts, and travel.
 
-Nest is [MIT licensed](LICENSE).
+Follow the steps below to use the API:
+
+- Create Ship
+- Create Pilot
+- Add Credits to Pilot
+- Add fuel to Ship
+- Create Contract
+- Accept Contract
+- Create Travel
+- Generate Reports
+
+## API Endpoints
+
+### Contracts
+
+- **Create a Contract**
+
+  **POST** `/api/v1/contracts`
+
+  Request Body:
+
+  ```json
+  {
+    "originPlanetId": 1,
+    "destinationPlanetId": 2,
+    "pilotId": 1,
+    "description": "Contract description",
+    "value": 1000,
+    "resources": [
+      {
+        "resourceId": 1,
+        "quantity": 10
+      },
+      {
+        "resourceId": 2,
+        "quantity": 20
+      }
+    ]
+  }
+  ```
+
+- **Get All Contracts**
+
+  **GET** `/api/v1/contracts`
+
+  Query Parameters:
+  - `page`: (optional) The page number to retrieve.
+  - `limit`: (optional) The number of items per page.
+
+- **Get a Contract by ID**
+
+  **GET** `/api/v1/contracts/{id}`
+
+- **Update a Contract**
+
+  **PATCH** `/api/v1/contracts/{id}`
+
+  Request Body:
+
+  ```json
+  {
+    "originPlanetId": 1,
+    "destinationPlanetId": 2,
+    "pilotId": 1,
+    "description": "Updated contract description",
+    "value": 1500,
+    "resources": [
+      {
+        "resourceId": 1,
+        "quantity": 15
+      },
+      {
+        "resourceId": 2,
+        "quantity": 25
+      }
+    ]
+  }
+  ```
+
+- **Delete a Contract**
+
+  **DELETE** `/api/v1/contracts/{id}`
+
+- **Accept a Contract**
+
+  **PATCH** `/api/v1/contracts/{id}/accept`
+
+### Pilots
+
+- **Create a Pilot**
+
+  **POST** `/api/v1/pilots`
+
+  Request Body:
+
+  ```json
+  {
+    "locationPlanetId": 1,
+    "certification": "1234567",
+    "name": "Luke Skywalker",
+    "age": 18,
+    "shipsId": [1, 2, 3]
+  }
+  ```
+
+- **Get All Pilots**
+
+  **GET** `/api/v1/pilots`
+
+  Query Parameters:
+  - `page`: (optional) The page number to retrieve.
+  - `limit`: (optional) The number of items per page.
+
+- **Get a Pilot by ID**
+
+  **GET** `/api/v1/pilots/{id}`
+
+- **Update a Pilot**
+
+  **PATCH** `/api/v1/pilots/{id}`
+
+  Request Body:
+
+  ```json
+  {
+    "locationPlanetId": 1,
+    "certification": "7654321",
+    "name": "Han Solo",
+    "age": 30,
+    "shipsId": [1, 3]
+  }
+  ```
+
+- **Delete a Pilot**
+
+  **DELETE** `/api/v1/pilots/{id}`
+
+- **Add Credits to a Pilot**
+
+  **PATCH** `/api/v1/pilots/{id}/credits/add`
+
+  Request Body:
+
+  ```json
+  {
+    "amount": 150
+  }
+  ```
+
+### Ships
+
+- **Create a Ship**
+
+  **POST** `/api/v1/ships`
+
+  Request Body:
+
+  ```json
+  {
+    "fuelCapacity": 1000,
+    "fuelLevel": 500,
+    "weightCapacity": 20000
+  }
+  ```
+
+- **Get All Ships**
+
+  **GET** `/api/v1/ships`
+
+  Query Parameters:
+  - `page`: (optional) The page number to retrieve.
+  - `limit`: (optional) The number of items per page.
+
+- **Get a Ship by ID**
+
+  **GET** `/api/v1/ships/{id}`
+
+- **Update a Ship**
+
+  **PATCH** `/api/v1/ships/{id}`
+
+  Request Body:
+
+  ```json
+  {
+    "fuelCapacity": 1200,
+    "fuelLevel": 600,
+    "weightCapacity": 22000
+  }
+  ```
+
+- **Delete a Ship**
+
+  **DELETE** `/api/v1/ships/{id}`
+
+- **Add Fuel to a Ship**
+
+  **PUT** `/api/v1/ships/{id}/add-fuel/{amount}`
+
+### Travel
+
+- **Create a Travel**
+
+  **POST** `/api/v1/travel`
+
+  Request Body:
+
+  ```json
+  {
+    "contractId": 1,
+    "fromPlanetId": 1,
+    "toPlanetId": 2,
+    "pilotId": 1,
+    "shipId": 1
+  }
+  ```
+
+- **Update a Travel**
+
+  **PATCH** `/api/v1/travel/{id}`
+
+  Request Body:
+
+  ```json
+  {
+    "contractId": 1,
+    "fromPlanetId": 1,
+    "toPlanetId": 2,
+    "pilotId": 1,
+    "shipId": 1
+  }
+  ```
+
+### Reports
+
+- **Calculate Weight Resources by Planet**
+
+  **GET** `/api/v1/reports/weight-resources-by-planet`
+
+- **Calculate Percentage of Resource Type by Pilot**
+
+  **GET** `/api/v1/reports/percentage-of-resource-type-by-pilot`

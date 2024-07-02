@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ReportService } from 'src/domains/report/report.service';
+import { ReportService } from '../../../domains/report/report.service';
 
 @ApiTags('reports')
 @Controller('reports')
@@ -15,5 +15,10 @@ export class ReportController {
   @Get('percentage-of-resource-type-by-pilot')
   public async calculatePercentageOfResourceTypeByPilot() {
     return await this.reportService.percentageOfResourceTypeByEachPilotReport();
+  }
+
+  @Get('federation-transactions-report')
+  public async calculatePercentageOfResourceTypeByPlanet() {
+    return await this.reportService.federationTransactionReport();
   }
 }

@@ -7,9 +7,9 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { CertificationNoExists } from 'src/domains/pilot/validators/certification-no-exists.validator';
+import { CertificationNoExists } from '../../../../domains/pilot/validators/certification-no-exists.validator';
 
-import { ValidPlanet } from 'src/domains/planet/validators/valid-planet.decorator';
+import { ValidPlanet } from '../../../../domains/planet/validators/valid-planet.decorator';
 
 @ApiExtraModels()
 export class CreatePilotDto {

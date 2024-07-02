@@ -2,9 +2,11 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ContractResourceEntity } from '../../contract-resource/contract-resource.entity';
 import { ContractEntity } from '../../contract/contract.entity';
+import { FederationTransactionLedgerEntity } from '../../federation-transaction-ledger/federation-transaction-ledger.entity';
 import { PilotCreditTransactionEntity } from '../../pilot-credit-transaction/pilot-credit-transaction.entity';
 import { PilotShipEntity } from '../../pilot-ship/pilot-ship.entity';
 import { PilotEntity } from '../../pilot/pilot.entity';
+import { PlanetEntity } from '../../planet/planet.entity';
 import { ResourceEntity } from '../../resource/resource.entity';
 import { ShipFuelTransactionEntity } from '../../ship-fuel-transaction/ship-fuel-transaction.entity';
 import { ShipEntity } from '../../ship/ship.entity';
@@ -48,7 +50,15 @@ export const mockRepositoryProviders = [
     useClass: Repository,
   },
   {
-    provide: DataSource, // Mock the DataSource dependency
-    useValue: {}, // You can use an empty object or a more detailed mock if needed
+    provide: getRepositoryToken(PlanetEntity),
+    useClass: Repository,
+  },
+  {
+    provide: getRepositoryToken(FederationTransactionLedgerEntity),
+    useClass: Repository,
+  },
+  {
+    provide: DataSource,
+    useValue: {},
   },
 ];

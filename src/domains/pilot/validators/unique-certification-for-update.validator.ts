@@ -16,7 +16,7 @@ export class UniqueCertificationForUpdateConstraint
   constructor(private readonly pilotService: PilotService) {}
 
   async validate(certification: string, args: ValidationArguments) {
-    const idToUpdate = args.object['id']; // ID da entidade que está sendo atualizada
+    const idToUpdate = args.object['id'];
 
     const pilotWithSameCertification =
       await this.pilotService.findOtherPilotWithCertification(

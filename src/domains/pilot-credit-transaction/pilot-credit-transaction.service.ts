@@ -76,7 +76,7 @@ export class PilotCreditTransactionService extends BaseService<PilotCreditTransa
     const result = await this.getEntityManager()
       .getRepository(PilotCreditTransactionEntity)
       .createQueryBuilder('c')
-      .select('COALESCE(SUM(c.amount), 0)', 'currentBalance') // Use correct alias
+      .select('COALESCE(SUM(c.amount), 0)', 'currentBalance')
       .where('c.pilotId = :pilotId', { pilotId })
       .getRawOne();
 

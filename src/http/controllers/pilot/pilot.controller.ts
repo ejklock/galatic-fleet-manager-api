@@ -11,14 +11,19 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { PilotService } from 'src/domains/pilot/pilot.service';
+import { PilotCreditTransactionService } from '../../../domains/pilot-credit-transaction/pilot-credit-transaction.service';
+import { PilotService } from '../../../domains/pilot/pilot.service';
+import { AddCreditDto } from './dto/add-credit.dto';
 import { CreatePilotDto } from './dto/create-pilot.dto';
 import { UpdatePilotDto } from './dto/update-pilot.dto';
 
 @ApiTags('pilots')
 @Controller('pilots')
 export class PilotController {
-  constructor(private readonly pilotService: PilotService) {}
+  constructor(
+    private readonly pilotService: PilotService,
+    private readonly pilotCreditTransactionService: PilotCreditTransactionService,
+  ) {}
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
@@ -46,6 +51,15 @@ export class PilotController {
   @Patch(':id')
   update(@Param('id') id: number, @Body() updatePilotDto: UpdatePilotDto) {
     return this.pilotService.update(id, updatePilotDto);
+  }
+  @HttpCode(HttpStatus.CREATED)
+  @Patch(':id/credits/add')
+  addCredits(@Param('id') id: number, @Body() addCreditDto: AddCreditDto) {
+    return this.pilotCreditTransactionService.createPilotCreditTransaction(
+      id,
+      'ADD CREDITS',
+      addCreditDto.amount,
+    );
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

@@ -12,7 +12,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { ShipService } from 'src/domains/ship/ship.service';
+import { ShipService } from '../../../domains/ship/ship.service';
 import { CreateShipDto } from './dto/create-ship.dto';
 import { UpdateShipDto } from './dto/update-ship.dto';
 

@@ -4,6 +4,7 @@ import { QueryRunner, Repository } from 'typeorm';
 import BaseService from '../common/base.service';
 import { DomainRuleViolationException } from '../common/common.exceptions';
 import { ApiPaginatedResponse } from '../common/common.types';
+import { FederationTransactionLedgerService } from '../federation-transaction-ledger/federation-transaction-ledger.service';
 import { PilotCreditTransactionService } from '../pilot-credit-transaction/pilot-credit-transaction.service';
 import { PilotShipEntity } from '../pilot-ship/pilot-ship.entity';
 import { ShipFuelTransactionService } from '../ship-fuel-transaction/ship-fuel-transaction.service';
@@ -16,6 +17,7 @@ export class ShipService extends BaseService<ShipEntity> {
     private readonly shipRepository: Repository<ShipEntity>,
     private readonly pilotCreditTransactionService: PilotCreditTransactionService,
     private readonly shipFuelTransactionService: ShipFuelTransactionService,
+    private readonly federationTransactionLedgerService: FederationTransactionLedgerService,
   ) {
     super(shipRepository);
   }
@@ -93,6 +95,7 @@ export class ShipService extends BaseService<ShipEntity> {
       .getRepository(PilotShipEntity)
       .createQueryBuilder('pilot_ship')
       .leftJoinAndSelect('pilot_ship.ship', 'ship')
+      .leftJoinAndSelect('pilot_ship.pilot', 'pilot')
       .leftJoin('ship.shipFuelTransactions', 'shipFuelTransactions')
       .addSelect([
         'COALESCE(SUM(shipFuelTransactions.amount),0) AS ship_fuel_level',
@@ -101,6 +104,7 @@ export class ShipService extends BaseService<ShipEntity> {
         shipId: shipId,
       })
       .getOne();
+    console.log(ship);
     if (!ship) {
       throw new Error('Ship not found');
     }
@@ -189,6 +193,10 @@ export class ShipService extends BaseService<ShipEntity> {
         `ADD FUEL ${fuelAmount} TO SHIP`,
         fuelAmount,
         queryRunner,
+      );
+
+      await this.federationTransactionLedgerService.registerTransaction(
+        `${pilotShip.pilot.name} bought fuel: ${fuelTotalCost}`,
       );
       return true;
     });

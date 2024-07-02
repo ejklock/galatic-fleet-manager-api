@@ -11,7 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { ContractService } from 'src/domains/contract/contract.service';
+import { ContractService } from '../../../domains/contract/contract.service';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 

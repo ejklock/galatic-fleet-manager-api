@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ContractModule } from '../contract/contract.module';
+import { FederationTransactionLedgerModule } from '../federation-transaction-ledger/federation-transaction-ledger.module';
 import { PilotCreditTransactionModule } from '../pilot-credit-transaction/pilot-credit-transaction.module';
 import { PilotModule } from '../pilot/pilot.module';
 import { ShipFuelTransactionModule } from '../ship-fuel-transaction/ship-fuel-transaction.module';
@@ -19,6 +20,7 @@ import { TravelService } from './travel.service';
     ContractModule,
     PilotCreditTransactionModule,
     ShipFuelTransactionModule,
+    FederationTransactionLedgerModule,
   ],
   exports: [TravelService],
 })

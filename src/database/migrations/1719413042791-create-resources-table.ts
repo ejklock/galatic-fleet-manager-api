@@ -1,5 +1,5 @@
-import { ResourceTypeEnum } from 'src/domains/resource/resource.types';
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+import { ResourceTypeEnum } from '../../domains/resource/resource.types';
 
 export class CreateResourcesTable1719413042791 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

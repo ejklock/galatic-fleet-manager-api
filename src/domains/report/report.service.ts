@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { FederationTransactionLedgerService } from '../federation-transaction-ledger/federation-transaction-ledger.service';
 import { PilotService } from '../pilot/pilot.service';
 import { PlanetService } from '../planet/planet.service';
 
@@ -7,6 +8,7 @@ export class ReportService {
   public constructor(
     private readonly planetService: PlanetService,
     private readonly pilotService: PilotService,
+    private readonly federationTransactionLedgerService: FederationTransactionLedgerService,
   ) {}
   public async totalWeightResourcesByPlanetReport() {
     const rawReport = await this.planetService.repository
@@ -103,7 +105,18 @@ export class ReportService {
     return formattedReport;
   }
 
-  public async calculateTotalWeightOfEachResourceSentByEachPlanet() {
-    return [];
+  public async federationTransactionReport() {
+    const unformattedReport =
+      await this.federationTransactionLedgerService.repository.find({
+        order: {
+          createdAt: 'ASC',
+        },
+      });
+
+    const formattedReport = unformattedReport.map((row) => {
+      return row.description;
+    });
+
+    return formattedReport;
   }
 }

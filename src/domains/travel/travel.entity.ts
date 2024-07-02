@@ -1,5 +1,5 @@
-import { DecimalColumnTransformer } from 'src/utils/app.transformers';
 import { Column, Entity } from 'typeorm';
+import { DecimalColumnTransformer } from '../../utils/app.transformers';
 import { BaseEntity } from '../common/base.entity';
 
 @Entity('travels')

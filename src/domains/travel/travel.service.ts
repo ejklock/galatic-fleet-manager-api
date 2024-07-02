@@ -5,6 +5,7 @@ import BaseService from '../common/base.service';
 import { ContractEntity } from '../contract/contract.entity';
 import { ContractService } from '../contract/contract.service';
 import { ContractStatusEnum } from '../contract/contract.types';
+import { FederationTransactionLedgerService } from '../federation-transaction-ledger/federation-transaction-ledger.service';
 import { PilotCreditTransactionService } from '../pilot-credit-transaction/pilot-credit-transaction.service';
 import { PilotService } from '../pilot/pilot.service';
 import { ShipFuelTransactionService } from '../ship-fuel-transaction/ship-fuel-transaction.service';
@@ -22,6 +23,7 @@ export class TravelService extends BaseService<TravelEntity> {
     private readonly contractService: ContractService,
     private readonly pilotCreditTransactionService: PilotCreditTransactionService,
     private readonly shipFuelTransactionService: ShipFuelTransactionService,
+    private readonly federationTransactionLedgerService: FederationTransactionLedgerService,
   ) {
     super(repository);
   }
@@ -54,6 +56,10 @@ export class TravelService extends BaseService<TravelEntity> {
       `CONTRACT ${contract.id} COMPLETED`,
       contract.value,
       queryRunner,
+    );
+
+    await this.federationTransactionLedgerService.registerTransaction(
+      `CONTRACT ${contract.id} paid -${contract.value}`,
     );
   }
 

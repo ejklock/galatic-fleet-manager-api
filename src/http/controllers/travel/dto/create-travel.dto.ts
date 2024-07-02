@@ -1,8 +1,8 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
-import { ValidPilot } from 'src/domains/pilot/validators/valid-pilot.validator';
-import { ValidPlanet } from 'src/domains/planet/validators/valid-planet.decorator';
-import { ValidShip } from 'src/domains/ship/validators/valid-ship.decorator';
+import { ValidPilot } from '../../../../domains/pilot/validators/valid-pilot.validator';
+import { ValidPlanet } from '../../../../domains/planet/validators/valid-planet.decorator';
+import { ValidShip } from '../../../../domains/ship/validators/valid-ship.decorator';
 
 @ApiExtraModels()
 export class CreateTravelDto {

@@ -18,10 +18,8 @@ export class CertificationNoExistsConstraint
   async validate(value: string, args: ValidationArguments) {
     const [ignoreId] = args.constraints;
 
-    // Check if there's already a pilot with the given certification
     const pilot = await this.pilotService.findByCertification(value);
 
-    // If no pilot found or found pilot has the same ID as the one being updated, it's valid
     return !pilot || pilot.id === ignoreId;
   }
 

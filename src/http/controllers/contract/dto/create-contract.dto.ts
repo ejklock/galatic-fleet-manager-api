@@ -1,8 +1,8 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNotEmpty, IsNumber, Min, ValidateNested } from 'class-validator';
-import { ValidPilot } from 'src/domains/pilot/validators/valid-pilot.validator';
-import { ValidPlanet } from 'src/domains/planet/validators/valid-planet.decorator';
+import { ValidPilot } from '../../../../domains/pilot/validators/valid-pilot.validator';
+import { ValidPlanet } from '../../../../domains/planet/validators/valid-planet.decorator';
 import { ContractResourceDto } from './contract-resource.dto';
 
 @ApiExtraModels()

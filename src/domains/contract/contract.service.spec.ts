@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { DomainRuleViolationException } from '../common/common.exceptions';
 import { mockRepositoryProviders } from '../common/test/utils';
 import { ContractResourceService } from '../contract-resource/contract-resource.service';
+import { FederationTransactionLedgerService } from '../federation-transaction-ledger/federation-transaction-ledger.service';
 import { PilotCreditTransactionService } from '../pilot-credit-transaction/pilot-credit-transaction.service';
 import { PilotShipService } from '../pilot-ship/pilot-ship.service';
 import { PilotEntity } from '../pilot/pilot.entity';
@@ -26,6 +27,7 @@ describe('ContractService', () => {
         ContractResourceService,
         PilotShipService,
         PilotCreditTransactionService,
+        FederationTransactionLedgerService,
         ShipService,
         ShipFuelTransactionService,
         ...mockRepositoryProviders,
